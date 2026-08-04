@@ -1,0 +1,440 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KrishiBot — Smart Farming AI Agent</title>
+<style>
+:root{
+  --bg:#f4f6f0;--surface:#fff;--surface2:#f0f4ea;
+  --border:#d4ddc8;--text:#1a2e0e;--muted:#5a7042;
+  --accent:#3a7d1e;--accent2:#e8a020;--red:#c0392b;
+  --blue:#2d6fa3;--purple:#6c5ce7;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;font-size:14px;
+     line-height:1.6;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+#sidebar{width:220px;background:var(--text);color:#d0e8c0;flex-shrink:0;
+         display:flex;flex-direction:column;position:fixed;top:0;bottom:0;overflow-y:auto}
+.logo{padding:18px 14px;border-bottom:1px solid #2d4020}
+.logo h1{font-size:17px;font-weight:700;color:#8fce6a}
+.logo p{font-size:10px;color:#7a9860;margin-top:1px}
+nav{flex:1;padding:10px 0}
+nav a{display:flex;align-items:center;gap:9px;padding:9px 14px;color:#a8cc88;
+      text-decoration:none;font-size:12px;cursor:pointer;
+      border-left:3px solid transparent;transition:all .15s}
+nav a:hover,nav a.active{background:#2a3d1a;color:#c8e8a0;border-left-color:var(--accent2)}
+nav a .ic{font-size:15px;width:18px;text-align:center}
+.nav-sec{padding:7px 14px 3px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#4a6030;font-weight:600}
+.sfooter{padding:10px 14px;border-top:1px solid #2d4020;font-size:10px;color:#5a7042}
+#main{margin-left:220px;flex:1;display:flex;flex-direction:column}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;
+        height:52px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
+.topbar h2{font-size:15px;font-weight:600;flex:1}
+.sdot{width:8px;height:8px;border-radius:50%;background:#ccc}
+.sdot.ok{background:var(--accent)}
+#slbl{font-size:11px;color:var(--muted)}
+.pg{display:none;padding:20px}
+.pg.active{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:18px;margin-bottom:14px}
+.ct{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:12px 14px}
+.sl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.sv{font-size:20px;font-weight:700;margin:3px 0}
+.ss{font-size:10px;color:var(--muted)}
+.stat.grn .sv{color:var(--accent)}
+.stat.amb .sv{color:var(--accent2)}
+.stat.rd .sv{color:var(--red)}
+.stat.bl .sv{color:var(--blue)}
+.fg{margin-bottom:10px}
+label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:3px}
+input,select,textarea{width:100%;padding:7px 9px;border:1px solid var(--border);
+  border-radius:5px;font-size:12px;font-family:inherit;background:var(--surface);color:var(--text);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:64px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;
+     border:none;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .15s}
+.btn:hover{opacity:.87}
+.btn-p{background:var(--accent);color:#fff}
+.btn-a{background:var(--accent2);color:#fff}
+.btn-b{background:var(--blue);color:#fff}
+.btn-o{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.tag{display:inline-block;padding:2px 7px;border-radius:11px;font-size:10px;font-weight:600}
+.tg{background:#d4edda;color:#155724}
+.tr{background:#f8d7da;color:#721c24}
+.ta{background:#fff3cd;color:#856404}
+.tb{background:#cce5ff;color:#004085}
+.il{list-style:none}
+.il li{padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+.il li:last-child{border:none}
+.il li::before{content:"✓ ";color:var(--accent);font-weight:700}
+.al{padding:10px 14px;border-radius:7px;font-size:12px;margin-bottom:10px;display:flex;align-items:flex-start;gap:8px}
+.ah{background:#f8d7da;border-left:4px solid var(--red);color:#721c24}
+.am{background:#fff3cd;border-left:4px solid var(--accent2);color:#856404}
+.ag{background:#d4edda;border-left:4px solid var(--accent);color:#155724}
+.ai{background:#cce5ff;border-left:4px solid var(--blue);color:#004085}
+.fc{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px}
+.fd{flex-shrink:0;background:var(--surface2);border:1px solid var(--border);
+    border-radius:7px;padding:9px 12px;text-align:center;min-width:82px}
+.fd .dn{font-size:10px;font-weight:600;color:var(--muted)}
+.fd .dt{font-size:15px;font-weight:700;margin:3px 0}
+.fd .dd{font-size:9px;color:var(--muted)}
+.fd .dr{font-size:10px;color:var(--blue);margin-top:1px}
+.cb{display:flex;flex-direction:column;gap:3px;max-height:180px;overflow-y:auto}
+.cr{display:flex;align-items:center;gap:7px;font-size:10px}
+.cl{width:65px;text-align:right;color:var(--muted);flex-shrink:0}
+.co{flex:1;background:var(--surface2);border-radius:3px;height:14px}
+.ci{height:100%;border-radius:3px;background:var(--accent);transition:width .4s}
+.cv{width:52px;color:var(--text);font-weight:600}
+#cw{height:360px;overflow-y:auto;border:1px solid var(--border);border-radius:7px;
+    padding:10px;background:var(--surface2);display:flex;flex-direction:column;gap:8px}
+.msg{max-width:82%;padding:9px 12px;border-radius:9px;font-size:12px;line-height:1.5}
+.mu{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:3px}
+.mb{align-self:flex-start;background:var(--surface);border:1px solid var(--border);border-bottom-left-radius:3px}
+.mb strong{color:var(--accent);font-size:10px;display:block;margin-bottom:1px}
+.ci-row{display:flex;gap:7px;margin-top:10px}
+.ci-row input{flex:1}
+.uz{border:2px dashed var(--border);border-radius:7px;padding:28px;text-align:center;
+    background:var(--surface2);cursor:pointer;transition:border-color .15s}
+.uz:hover{border-color:var(--accent)}
+#pv{max-width:100%;max-height:180px;border-radius:7px;display:none;margin-top:10px}
+.dc{border:2px solid var(--border);border-radius:9px;overflow:hidden}
+.dh{padding:10px 14px;background:var(--surface2);display:flex;justify-content:space-between;align-items:center}
+.db{padding:14px}
+.ts{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
+.ts:last-child{border:none}
+.sn{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);
+      border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.pb{height:7px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.pf{height:100%;border-radius:4px;background:var(--accent);transition:width .4s}
+.divr{border:none;border-top:1px solid var(--border);margin:14px 0}
+</style>
+</head>
+<body>
+<aside id="sidebar">
+  <div class="logo"><h1>🌾 KrishiBot</h1><p>Smart Farming AI Agent</p></div>
+  <nav>
+    <div class="nav-sec">Dashboard</div>
+    <a class="active" data-page="overview"><span class="ic">🏠</span> Overview</a>
+    <div class="nav-sec">AI Agents</div>
+    <a data-page="crop"><span class="ic">🌱</span> Crop Advisory</a>
+    <a data-page="weather"><span class="ic">🌤</span> Weather &amp; Irrigation</a>
+    <a data-page="pest"><span class="ic">🔬</span> Pest Detection</a>
+    <a data-page="market"><span class="ic">📊</span> Market Insights</a>
+    <div class="nav-sec">Intelligence</div>
+    <a data-page="full"><span class="ic">⚡</span> Full Advisory</a>
+    <a data-page="chat"><span class="ic">💬</span> AI Chat</a>
+    <a data-page="arch"><span class="ic">🏗</span> Architecture</a>
+  </nav>
+  <div class="sfooter">API: localhost:8000<br />v1.0.0 — IBM Hackathon 2025</div>
+</aside>
+
+<div id="main">
+  <div class="topbar">
+    <h2 id="ptitle">Overview</h2>
+    <span class="sdot ok" id="sdot"></span>
+    <span id="slbl">Demo Mode (no API)</span>
+  </div>
+
+  
+  <div id="pg-overview" class="pg active">
+    <div class="g4" style="margin-bottom:16px">
+      <div class="stat grn"><div class="sl">Active Agents</div><div class="sv">4</div><div class="ss">All operational</div></div>
+      <div class="stat amb"><div class="sl">Crops Supported</div><div class="sv">10+</div><div class="ss">Major Indian crops</div></div>
+      <div class="stat bl"><div class="sl">RAG Knowledge</div><div class="sv">Built-in</div><div class="ss">FAISS + OpenAI</div></div>
+      <div class="stat"><div class="sl">Mode</div><div class="sv" style="font-size:13px;color:var(--accent2)">Rule-based</div><div class="ss">Add API key for LLM</div></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="ct">🤖 Multi-Agent Architecture</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="al ai" style="margin:0"><span>🌱</span><div><strong>Crop Advisory Agent</strong> — Seeds, fertiliser plan, irrigation schedule, harvest timeline via RAG+LLM</div></div>
+          <div class="al ai" style="margin:0"><span>🌤</span><div><strong>Weather &amp; Irrigation Agent</strong> — Real-time weather, ET₀ calculation, spray windows, risk alerts</div></div>
+          <div class="al ai" style="margin:0"><span>🔬</span><div><strong>Pest &amp; Disease Agent</strong> — Multimodal image analysis (GPT-4o Vision), IPM treatment plans</div></div>
+          <div class="al ai" style="margin:0"><span>📊</span><div><strong>Market Insights Agent</strong> — MSP tracking, price trends, selling strategy, ROI calculator</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ct">🚀 Quick Start</div>
+        <div class="fg"><label>Crop</label>
+          <select id="qs-c"><option>wheat</option><option>rice</option><option>maize</option>
+          <option>tomato</option><option>soybean</option><option>potato</option></select></div>
+        <div class="fg"><label>Location</label><input id="qs-l" /></div>
+        <div class="fg"><label>Land Area (ha)</label><input id="qs-a" type="number" /></div>
+        <button class="btn btn-p" id="bqs" style="width:100%">⚡ Run Full Advisory</button>
+        <div id="qs-r" style="margin-top:12px"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">📐 Problem → Solution Mapping</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="al ah" style="margin:0"><span>❌</span><div><strong>Problem:</strong> Low crop yield, wrong seed choice, poor fertilisation timing</div></div>
+        <div class="al ag" style="margin:0"><span>✅</span><div><strong>Solution:</strong> Crop Advisory Agent → RAG-powered personalised seed &amp; NPK plan</div></div>
+        <div class="al ah" style="margin:0"><span>❌</span><div><strong>Problem:</strong> Unpredictable weather, water waste, wrong spray timing</div></div>
+        <div class="al ag" style="margin:0"><span>✅</span><div><strong>Solution:</strong> Weather Agent → ET₀ irrigation model, 5-day forecast, spray windows</div></div>
+        <div class="al ah" style="margin:0"><span>❌</span><div><strong>Problem:</strong> Pest/disease spread, late detection, wrong treatment</div></div>
+        <div class="al ag" style="margin:0"><span>✅</span><div><strong>Solution:</strong> Pest Agent → GPT-4o Vision diagnosis, IPM treatment plan</div></div>
+        <div class="al ah" style="margin:0"><span>❌</span><div><strong>Problem:</strong> Selling at wrong time, below MSP, no market access</div></div>
+        <div class="al ag" style="margin:0"><span>✅</span><div><strong>Solution:</strong> Market Agent → Price trends, MSP alerts, e-NAM &amp; FPO recommendations</div></div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div id="pg-crop" class="pg">
+    <div class="g2">
+      <div class="card">
+        <div class="ct">🌱 Crop Advisory Agent</div>
+        <div class="fg"><label>Crop</label><select id="cc"><option>wheat</option><option>rice</option>
+          <option>maize</option><option>tomato</option><option>soybean</option><option>potato</option></select></div>
+        <div class="fg"><label>Location</label><input id="cl" /></div>
+        <div class="fg"><label>Land Area (ha)</label><input id="ca" type="number" /></div>
+        <div class="fg"><label>Soil Type</label><select id="cs"><option>loamy</option>
+          <option>clay-loam</option><option>sandy loam</option><option>clay</option></select></div>
+        <div class="fg"><label>Your Question (optional)</label>
+          <textarea id="cq"></textarea></div>
+        <button class="btn btn-p" id="bc" style="width:100%">🌱 Get Crop Advisory</button>
+      </div>
+      <div id="cr-out"><div class="card" style="text-align:center;color:var(--muted);padding:36px">
+        <div style="font-size:36px;margin-bottom:8px">🌾</div>Fill in details and click "Get Crop Advisory"
+      </div></div>
+    </div>
+  </div>
+
+  
+  <div id="pg-weather" class="pg">
+    <div class="g2">
+      <div class="card">
+        <div class="ct">🌤 Weather &amp; Irrigation Agent</div>
+        <div class="fg"><label>Location</label><input id="wl" /></div>
+        <div class="fg"><label>Crop</label><select id="wc"><option>rice</option><option>wheat</option>
+          <option>maize</option><option>tomato</option><option>groundnut</option></select></div>
+        <div class="fg"><label>Soil Type</label><select id="ws"><option>loamy</option>
+          <option>clay-loam</option><option>sandy loam</option></select></div>
+        <button class="btn btn-b" id="bw" style="width:100%">🌤 Analyse Weather</button>
+      </div>
+      <div id="wr-out"><div class="card" style="text-align:center;color:var(--muted);padding:36px">
+        <div style="font-size:36px;margin-bottom:8px">⛅</div>Enter location to get weather insights
+      </div></div>
+    </div>
+  </div>
+
+  
+  <div id="pg-pest" class="pg">
+    <div class="g2">
+      <div class="card">
+        <div class="ct">🔬 Pest &amp; Disease Detection</div>
+        <div class="fg"><label>Crop Name</label><input id="pc" /></div>
+        <div class="fg"><label>Describe Symptoms</label>
+          <textarea id="ps"></textarea></div>
+        <div class="fg"><label>Upload Crop Image (optional)</label>
+          <div class="uz" id="uz">
+            <div style="font-size:26px;margin-bottom:6px">📷</div>
+            <div style="font-weight:600;margin-bottom:3px;font-size:12px">Drop image here or click to browse</div>
+            <div style="font-size:10px;color:var(--muted)">JPG / PNG / WebP — max 10MB</div>
+            <input type="file" id="pf" style="display:none" />
+          </div>
+          <img id="pv" alt="Preview" />
+        </div>
+        <button class="btn btn-a" id="bp" style="width:100%">🔬 Detect Pest / Disease</button>
+      </div>
+      <div id="pr-out"><div class="card" style="text-align:center;color:var(--muted);padding:36px">
+        <div style="font-size:36px;margin-bottom:8px">🔬</div>Upload an image or describe symptoms to start diagnosis
+      </div></div>
+    </div>
+  </div>
+
+  
+  <div id="pg-market" class="pg">
+    <div class="g2">
+      <div class="card">
+        <div class="ct">📊 Market Insights Agent</div>
+        <div class="fg"><label>Crop</label><select id="mc"><option>wheat</option><option>rice</option>
+          <option>maize</option><option>soybean</option><option>onion</option>
+          <option>tomato</option><option>potato</option><option>groundnut</option></select></div>
+        <div class="fg"><label>Location / State</label><input id="ml" /></div>
+        <div class="fg"><label>Land Area (ha)</label><input id="ma" type="number" /></div>
+        <div class="fg"><label>Your Question (optional)</label>
+          <textarea id="mq"></textarea></div>
+        <button class="btn btn-p" id="bm" style="width:100%">📊 Get Market Insights</button>
+      </div>
+      <div id="mr-out"><div class="card" style="text-align:center;color:var(--muted);padding:36px">
+        <div style="font-size:36px;margin-bottom:8px">📈</div>Select a crop to see market analysis
+      </div></div>
+    </div>
+  </div>
+
+  
+  <div id="pg-full" class="pg">
+    <div class="g2" style="margin-bottom:14px">
+      <div class="card">
+        <div class="ct">⚡ Full Multi-Agent Advisory</div>
+        <div class="fg"><label>Crop</label><select id="fc"><option>wheat</option><option>rice</option>
+          <option>maize</option><option>tomato</option><option>soybean</option></select></div>
+        <div class="fg"><label>Location</label><input id="fl" /></div>
+        <div class="fg"><label>Land Area (ha)</label><input id="fa" type="number" /></div>
+        <div class="fg"><label>Soil Type</label><select id="fso"><option>loamy</option>
+          <option>sandy loam</option><option>clay-loam</option></select></div>
+        <div class="fg"><label>Farmer Query</label>
+          <textarea id="fq">What should I focus on this season?</textarea></div>
+        <button class="btn btn-p" id="bf" style="width:100%">⚡ Run All 4 Agents</button>
+      </div>
+      <div id="fs-out"><div class="card" style="text-align:center;color:var(--muted);padding:36px">
+        <div style="font-size:36px;margin-bottom:8px">⚡</div>Click "Run All 4 Agents" to get a consolidated report
+      </div></div>
+    </div>
+    <div id="fd-out" style="display:none">
+      <div class="g2"><div id="fc-out"></div><div id="fw-out"></div></div>
+      <div id="fm-out"></div>
+    </div>
+  </div>
+
+  
+  <div id="pg-chat" class="pg">
+    <div class="g2">
+      <div class="card" style="height:fit-content">
+        <div class="ct">👤 Farmer Profile</div>
+        <div class="fg"><label>Crop</label><input id="chc" /></div>
+        <div class="fg"><label>Location</label><input id="chl" /></div>
+        <div class="fg"><label>Land (ha)</label><input id="cha" type="number" /></div>
+        <hr class="divr" />
+        <div style="font-size:11px;color:var(--muted)">
+          <strong>Try asking:</strong><br />
+          "When to apply fertiliser?"<br />
+          "My rice leaves are yellow"<br />
+          "Should I sell my wheat now?"<br />
+          "How much water does maize need?"
+        </div>
+      </div>
+      <div><div class="card" style="padding:14px">
+        <div class="ct">💬 KrishiBot AI Chat</div>
+        <div id="cw">
+          <div class="msg mb"><strong>KrishiBot 🌾</strong>Namaste! I'm KrishiBot, your AI farming assistant. Ask me anything about crops, weather, pests, or market prices!</div>
+        </div>
+        <div class="ci-row">
+          <input id="chi" />
+          <button class="btn btn-p" id="bch">Send</button>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  
+  <div id="pg-arch" class="pg">
+    <div class="card">
+      <div class="ct">🏗 System Architecture</div>
+      <div style="font-family:monospace;font-size:12px;background:#1a2e0e;color:#8fce6a;padding:18px;border-radius:8px;line-height:1.8">
+Farmer Input (profile + query + optional image)
+          │
+          ▼
+  ┌─────────────────────────────────────┐
+  │         ORCHESTRATOR                │
+  │   Parallel dispatch → synthesis     │
+  └──────────────┬──────────────────────┘
+                 │ asyncio.gather()
+     ┌───────────┼────────────┬──────────────┐
+     ▼           ▼            ▼              ▼
+🌱 Crop      🌤 Weather   🔬 Pest       📊 Market
+Advisory     Irrigation  Detection     Insights
+Agent        Agent       Agent         Agent
+     │           │            │              │
+     └───────────┴────────────┴──────────────┘
+                          │
+           📚 RAG Store (FAISS Vector DB)
+           ← LangChain + OpenAI Embeddings
+           ← Semantic search over KB docs
+                          │
+                          ▼
+          🤖 LLM Layer (OpenAI GPT-4o)
+          ← Text generation + JSON output
+          ← Vision (pest image analysis)
+                          │
+                          ▼
+          📋 Consolidated Smart Report
+          ← Executive summary
+          ← Per-agent detailed outputs
+          ← Actionable recommendations
+      </div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="ct">📡 API Endpoints</div>
+        <div style="font-size:12px">
+          <div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+            <span class="tag tb">GET</span><code>/health</code>
+            <span style="color:var(--muted);font-size:10px">System status</span>
+          </div>
+          <div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+            <span class="tag tg">POST</span><code>/api/advisory/full</code>
+            <span style="color:var(--muted);font-size:10px">All 4 agents</span>
+          </div>
+          <div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+            <span class="tag tg">POST</span><code>/api/crop/advise</code>
+            <span style="color:var(--muted);font-size:10px">Crop advisory</span>
+          </div>
+          <div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+            <span class="tag tg">POST</span><code>/api/weather/analyse</code>
+            <span style="color:var(--muted);font-size:10px">Weather + irrigation</span>
+          </div>
+          <div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+            <span class="tag tg">POST</span><code>/api/pest/detect</code>
+            <span style="color:var(--muted);font-size:10px">Image + diagnosis</span>
+          </div>
+          <div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+            <span class="tag tg">POST</span><code>/api/market/insights</code>
+            <span style="color:var(--muted);font-size:10px">Price analysis</span>
+          </div>
+          <div style="display:flex;gap:8px;padding:6px 0">
+            <span class="tag tg">POST</span><code>/api/chat</code>
+            <span style="color:var(--muted);font-size:10px">KrishiBot chat</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ct">🛠 Tech Stack</div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:12px">
+          <div class="al ai" style="margin:0;padding:8px 12px"><span>🐍</span><div><strong>FastAPI + Python 3.10+</strong> — Async REST API with Pydantic validation</div></div>
+          <div class="al ai" style="margin:0;padding:8px 12px"><span>🧠</span><div><strong>OpenAI GPT-4o</strong> — Text generation + vision (pest detection)</div></div>
+          <div class="al ai" style="margin:0;padding:8px 12px"><span>📚</span><div><strong>LangChain + FAISS</strong> — RAG vector store for knowledge retrieval</div></div>
+          <div class="al ai" style="margin:0;padding:8px 12px"><span>🌤</span><div><strong>OpenWeatherMap API</strong> — Real-time weather &amp; 5-day forecast</div></div>
+          <div class="al ai" style="margin:0;padding:8px 12px"><span>⚡</span><div><strong>asyncio.gather()</strong> — Parallel agent execution</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<footer style="margin-left:220px;text-align:center;padding:12px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);background:var(--surface)">
+  Made with IBM Bob
+</footer>
+<script>
+  window.wxOConfiguration = {
+    orchestrationID: "5dedb99f44b041f480918413e78845c8_ddcf087b-c99b-4c2c-b72c-55713fca1759",
+    hostURL: "https://au-syd.watson-orchestrate.cloud.ibm.com",
+    rootElementID: "root",
+    deploymentPlatform: "ibmcloud",
+    crn: "crn:v1:bluemix:public:watsonx-orchestrate:au-syd:a/5dedb99f44b041f480918413e78845c8:ddcf087b-c99b-4c2c-b72c-55713fca1759::",
+    chatOptions: {
+        agentId: "f0e0acb5-5e23-4731-a5e4-ac5680ed75a3", 
+    }
+  };
+  setTimeout(function () {
+    const script = document.createElement('script');
+    script.src = `${window.wxOConfiguration.hostURL}/wxochat/wxoLoader.js?embed=true`;
+    script.addEventListener('load', function () {
+        wxoLoader.init();
+    });
+    document.head.appendChild(script);
+  }, 0);                     
+</script>
+</body>
+</html>
